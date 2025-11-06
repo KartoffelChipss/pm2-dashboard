@@ -81,7 +81,7 @@ const AppsPage = () => {
                                         </span>
                                     </a>
                                     <div className="border my-2" />
-                                    <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid sm:grid-cols-2 gap-4">
                                         <AppStat
                                             label="CPU:"
                                             value={`${app.cpu}%`}
