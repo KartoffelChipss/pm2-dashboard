@@ -58,7 +58,7 @@ export function readHistory(pm_id: number, fromTs?: number, toTs?: number) {
                 const s = JSON.parse(line);
                 if ((fromTs && s.ts < fromTs) || (toTs && s.ts > toTs)) continue;
                 samples.push(s);
-            } catch (e) {
+            } catch {
                 // skip malformed line
             }
         }

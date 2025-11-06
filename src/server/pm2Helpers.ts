@@ -100,7 +100,7 @@ export function reloadApp(process: string | number): Promise<void> {
             if (err) {
                 reject(err);
             }
-            pm2.reload(process, (err, proc) => {
+            pm2.reload(process, (err) => {
                 pm2.disconnect();
                 if (err) {
                     reject(err);
@@ -122,7 +122,7 @@ export function stopApp(process: string | number): Promise<void> {
             if (err) {
                 reject(err);
             }
-            pm2.stop(process, (err, proc) => {
+            pm2.stop(process, (err) => {
                 pm2.disconnect();
                 if (err) {
                     reject(err);
@@ -144,7 +144,7 @@ export function restartApp(process: string | number): Promise<void> {
             if (err) {
                 reject(err);
             }
-            pm2.restart(process, (err, proc) => {
+            pm2.restart(process, (err) => {
                 pm2.disconnect();
                 if (err) {
                     reject(err);
@@ -171,7 +171,7 @@ export function startApp(process: {
             if (err) {
                 reject(err);
             }
-            pm2.start(process, (err, proc) => {
+            pm2.start(process, (err) => {
                 pm2.disconnect();
                 if (err) {
                     reject(err);
@@ -192,7 +192,7 @@ export function deleteApp(process: string | number): Promise<void> {
             if (err) {
                 reject(err);
             }
-            pm2.delete(process, (err, proc) => {
+            pm2.delete(process, (err) => {
                 pm2.disconnect();
                 if (err) {
                     reject(err);

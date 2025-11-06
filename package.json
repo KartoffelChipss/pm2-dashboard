@@ -1,31 +1,44 @@
 {
-  "name": "pm2-dashboard",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "nodemon -w src/server -x tsx src/server/main.ts",
-    "start": "NODE_ENV=production tsx src/server/main.ts",
-    "build": "vite build"
-  },
-  "dependencies": {
-    "dotenv": "^17.2.3",
-    "express": "^5.1.0",
-    "pm2": "^6.0.13",
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0",
-    "tsx": "^4.19.3",
-    "typescript": "^5.8.3",
-    "vite-express": "*",
-    "winston": "^3.18.3"
-  },
-  "devDependencies": {
-    "@types/express": "^5.0.1",
-    "@types/node": "^22.15.2",
-    "@types/react": "^19.1.2",
-    "@types/react-dom": "^19.1.2",
-    "@vitejs/plugin-react": "^4.4.1",
-    "nodemon": "^3.1.10",
-    "vite": "^6.3.3"
-  }
+    "name": "pm2-dashboard",
+    "private": true,
+    "version": "0.0.0",
+    "type": "module",
+    "scripts": {
+        "dev": "nodemon -w src/server -x tsx src/server/main.ts",
+        "start": "NODE_ENV=production tsx src/server/main.ts",
+        "build": "vite build",
+        "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+        "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx --fix",
+        "format": "prettier . --write",
+        "format:check": "prettier . --check"
+    },
+    "dependencies": {
+        "dotenv": "^17.2.3",
+        "express": "^5.1.0",
+        "pm2": "^6.0.13",
+        "react": "^19.1.0",
+        "react-dom": "^19.1.0",
+        "tsx": "^4.19.3",
+        "typescript": "^5.8.3",
+        "vite-express": "*",
+        "winston": "^3.18.3"
+    },
+    "devDependencies": {
+        "@eslint/js": "^9.39.1",
+        "@types/express": "^5.0.1",
+        "@types/node": "^22.15.2",
+        "@types/react": "^19.1.2",
+        "@types/react-dom": "^19.1.2",
+        "@vitejs/plugin-react": "^4.4.1",
+        "eslint": "^9.39.1",
+        "eslint-config-prettier": "^10.1.8",
+        "eslint-plugin-prettier": "^5.5.4",
+        "eslint-plugin-react": "^7.37.5",
+        "globals": "^16.5.0",
+        "jiti": "^2.6.1",
+        "nodemon": "^3.1.10",
+        "prettier": "^3.6.2",
+        "typescript-eslint": "^8.46.3",
+        "vite": "^6.3.3"
+    }
 }
