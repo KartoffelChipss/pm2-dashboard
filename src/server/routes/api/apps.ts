@@ -29,7 +29,7 @@ router.get('/:name', async (req, res) => {
 
     try {
         const appInfo = await describeApp(appName);
-        const history = readHistory(appInfo?.pm_id ?? -1, sinceTs, untilTs);
+        const history = await readHistory(appInfo?.pm_id ?? -1, sinceTs, untilTs);
         if (!appInfo) {
             res.status(404).json({ error: 'App not found' });
             return;
@@ -65,7 +65,7 @@ router.get('/:name/stream', async (req, res) => {
                 sendPayload({ error: 'app_not_found' });
                 return;
             }
-            const history = readHistory(
+            const history = await readHistory(
                 appInfo.pm_id ?? -1,
                 Date.now() - 30 * 60 * 1000,
                 Date.now()

@@ -84,6 +84,8 @@ const AppPage = () => {
         },
     });
 
+    console.log('Hiostory', app?.history);
+
     const restartMutation = useMutation({
         mutationFn: async () => {
             const response = await fetch(`/api/apps/${appName}/restart`, {

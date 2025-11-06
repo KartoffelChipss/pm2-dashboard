@@ -3,6 +3,9 @@ import fs from 'fs';
 import path from 'path';
 import { CONFIG_PATH } from './util/env.js';
 import logger from './util/logging/logger.js';
+import { db } from './db/initDatabase.js';
+import { Op } from 'sequelize';
+import { PM2AppHistory } from '../types/pm2.js';
 
 const DATA_DIR = path.resolve(CONFIG_PATH, 'pm2-metrics');
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -26,8 +29,8 @@ export async function pollOnce(): Promise<void> {
                         memory: app.monit?.memory ?? null,
                         uptime: app.pm2_env?.pm_uptime ?? null,
                     };
-                    const file = path.join(DATA_DIR, `${app.pm_id}.jsonl`);
-                    fs.appendFileSync(file, JSON.stringify(sample) + '\n');
+
+                    db.History.create(sample);
                 }
                 resolve();
             });
@@ -43,28 +46,28 @@ export function startPolling(intervalMs = 10_000) {
     return () => clearInterval(id);
 }
 
-export function readHistory(pm_id: number, fromTs?: number, toTs?: number) {
+/**
+ * Read history samples for a given pm_id within an optional time range.
+ * @param pm_id The PM2 process ID.
+ * @param fromTs The start timestamp (inclusive).
+ * @param toTs The end timestamp (inclusive).
+ * @returns An array of PM2AppHistory samples.
+ */
+export async function readHistory(
+    pm_id: number,
+    fromTs?: number,
+    toTs?: number
+): Promise<PM2AppHistory> {
     if (pm_id < 0) return [];
-    const files: string[] = [];
-    const f = path.join(DATA_DIR, `${pm_id}.jsonl`);
-    if (fs.existsSync(f)) files.push(f);
 
-    const samples: Array<Record<string, any>> = [];
-    for (const f of files) {
-        const content = fs.readFileSync(f, 'utf8').trim();
-        if (!content) continue;
-        for (const line of content.split('\n')) {
-            try {
-                const s = JSON.parse(line);
-                if ((fromTs && s.ts < fromTs) || (toTs && s.ts > toTs)) continue;
-                samples.push(s);
-            } catch {
-                // skip malformed line
-            }
-        }
+    const whereClause: any = { pm_id };
+    if (fromTs !== undefined) {
+        whereClause.ts = { ...(whereClause.ts || {}), [Op.gte]: fromTs };
+    }
+    if (toTs !== undefined) {
+        whereClause.ts = { ...(whereClause.ts || {}), [Op.lte]: toTs };
     }
 
-    // sort by timestamp ascending
-    samples.sort((a, b) => a.ts - b.ts);
-    return samples;
+    const samples = await db.History.findAll({ where: whereClause, order: [['ts', 'ASC']] });
+    return samples.map((s) => s.toJSON());
 }
