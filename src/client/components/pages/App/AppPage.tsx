@@ -103,7 +103,7 @@ const AppPage = () => {
                                             label="Status:"
                                             value={
                                                 <div className="flex items-center">
-                                                    <span className="text-sm font-medium">
+                                                    <span className="text-lg font-mono font-semibold">
                                                         {getStatusText(app.appInfo.status)}
                                                     </span>
                                                     <span
@@ -117,7 +117,7 @@ const AppPage = () => {
                                         />
                                         <AppStat
                                             label="CPU:"
-                                            value={`${app.appInfo.cpu}%`}
+                                            value={`${app.appInfo.cpu?.toFixed(2)}%`}
                                             icon={<Cpu className="h-6 w-6" />}
                                         />
                                         <AppStat
