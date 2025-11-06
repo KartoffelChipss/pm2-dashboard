@@ -222,7 +222,7 @@ const AppPage = () => {
                         <div className="flex flex-col md:flex-row gap-4">
                             <div className="grid gap-4 min-w-1/3">
                                 <div className="card p-4 py-3 gap-4">
-                                    <div className="flex items-center justify-between">
+                                    <div className="flex flex-col md:flex-row md:items-center gap-1 mb-1 md:mb-0 justify-between">
                                         <h2 className="text-lg font-semibold">Overview</h2>
                                         <div role="group" className="flex button-group">
                                             <button
