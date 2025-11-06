@@ -1,7 +1,26 @@
+export type PM2AppStatus =
+    | 'online'
+    | 'stopping'
+    | 'stopped'
+    | 'launching'
+    | 'errored'
+    | 'one-launch-status';
+export const PM2AppStatuses: PM2AppStatus[] = [
+    'online',
+    'stopping',
+    'stopped',
+    'launching',
+    'errored',
+    'one-launch-status',
+];
+export function isPM2AppStatus(status: string): status is PM2AppStatus {
+    return PM2AppStatuses.includes(status as PM2AppStatus);
+}
+
 export type PM2AppInfo = {
     name: string;
     pm_id: number;
-    status?: string;
+    status?: PM2AppStatus;
     cpu?: number;
     memory?: number;
     uptime?: number;

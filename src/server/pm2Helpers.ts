@@ -1,5 +1,10 @@
 import pm2 from 'pm2';
-import { PM2AppInfo } from '../types/pm2.js';
+import { isPM2AppStatus, PM2AppInfo, PM2AppStatus } from '../types/pm2.js';
+
+function parseStatus(status: string | undefined): PM2AppStatus | undefined {
+    if (status && isPM2AppStatus(status)) return status;
+    else return undefined;
+}
 
 /**
  * Lists all PM2 managed applications with their status and resource usage.
@@ -26,7 +31,7 @@ export function listApps(): Promise<PM2AppInfo[]> {
                         return {
                             name: app.name,
                             pm_id: app.pm_id,
-                            status: app.pm2_env?.status,
+                            status: parseStatus(app.pm2_env?.status),
                             cpu: app.monit?.cpu,
                             memory: app.monit?.memory,
                             uptime: app.pm2_env?.pm_uptime,
@@ -65,7 +70,7 @@ export function describeApp(appName: string): Promise<PM2AppInfo | null> {
                             const appInfo: PM2AppInfo = {
                                 name: app.name,
                                 pm_id: app.pm_id,
-                                status: app.pm2_env?.status,
+                                status: parseStatus(app.pm2_env?.status),
                                 cpu: app.monit?.cpu,
                                 memory: app.monit?.memory,
                                 uptime: app.pm2_env?.pm_uptime,
@@ -140,6 +145,54 @@ export function restartApp(process: string | number): Promise<void> {
                 reject(err);
             }
             pm2.restart(process, (err, proc) => {
+                pm2.disconnect();
+                if (err) {
+                    reject(err);
+                }
+                resolve();
+            });
+        });
+    });
+}
+
+/**
+ * Starts a new PM2 managed application.
+ * @param process The process configuration object.
+ * @returns A promise that resolves when the process is started.
+ */
+export function startApp(process: {
+    name: string;
+    script: string;
+    args?: string[];
+    cwd?: string;
+}): Promise<void> {
+    return new Promise((resolve, reject) => {
+        pm2.connect((err) => {
+            if (err) {
+                reject(err);
+            }
+            pm2.start(process, (err, proc) => {
+                pm2.disconnect();
+                if (err) {
+                    reject(err);
+                }
+                resolve();
+            });
+        });
+    });
+}
+
+/** * Deletes a PM2 managed application.
+ * @param process The name or ID of the process to delete.
+ * @returns A promise that resolves when the process is deleted.
+ */
+export function deleteApp(process: string | number): Promise<void> {
+    return new Promise((resolve, reject) => {
+        pm2.connect((err) => {
+            if (err) {
+                reject(err);
+            }
+            pm2.delete(process, (err, proc) => {
                 pm2.disconnect();
                 if (err) {
                     reject(err);
