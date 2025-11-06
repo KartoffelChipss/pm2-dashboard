@@ -24,7 +24,7 @@ router.get('/', async (_, res) => {
 
 router.get('/:name', async (req, res) => {
     const appName = req.params.name;
-    const sinceTs = req.query.since ? Number(req.query.since) : Date.now() - 3600 * 1000;
+    const sinceTs = req.query.since ? Number(req.query.since) : Date.now() - 10 * 60 * 1000;
     const untilTs = req.query.until ? Number(req.query.until) : Date.now();
 
     try {
@@ -67,7 +67,7 @@ router.get('/:name/stream', async (req, res) => {
             }
             const history = await readHistory(
                 appInfo.pm_id ?? -1,
-                Date.now() - 30 * 60 * 1000,
+                Date.now() - 10 * 60 * 1000,
                 Date.now()
             );
             sendPayload({ appInfo, history });
