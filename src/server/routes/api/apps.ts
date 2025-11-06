@@ -74,7 +74,7 @@ router.get('/:name/stream', async (req, res) => {
     };
 
     void sendOnce();
-    const id = setInterval(() => void sendOnce(), 3000);
+    const id = setInterval(() => void sendOnce(), 5000);
 
     req.on('close', () => {
         clearInterval(id);
