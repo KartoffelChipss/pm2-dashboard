@@ -1,4 +1,4 @@
-import { OctagonAlert } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
 import { ReactNode } from 'react';
 
 export interface ErrorDisplayProps {
@@ -16,11 +16,11 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
 }) => (
     <div
         className={
-            'flex flex-col justify-center items-center w-full gap-3 text-lg text-center ' +
+            'flex flex-col justify-center items-center w-full h-full -mt-16 gap-3 text-lg text-center ' +
             className
         }
     >
-        {icon || <OctagonAlert className="h-9 w-9" />}
+        {icon || <AlertTriangle className="h-9 w-9" />}
         {message && <p>{message}</p>}
         <p>{error instanceof Error ? error.message : String(error)}</p>
     </div>

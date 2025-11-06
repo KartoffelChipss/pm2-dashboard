@@ -5,6 +5,7 @@ import { BrowserRouter, Route, Routes } from 'react-router';
 import HomePage from './components/pages/Home/HomePage';
 import AppsPage from './components/pages/Apps/AppsPage';
 import NotFoundPage from './components/pages/NotFoundPage';
+import AppPage from './components/pages/App/AppPage';
 
 const queryClient = new QueryClient();
 
@@ -13,7 +14,8 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
         <BrowserRouter>
             <Routes>
                 <Route path="/" element={<HomePage />} />
-                <Route path="apps" element={<AppsPage />} />
+                <Route path="/apps" element={<AppsPage />} />
+                <Route path="/apps/:appName" element={<AppPage />} />
                 <Route path="*" element={<NotFoundPage />} />
             </Routes>
         </BrowserRouter>

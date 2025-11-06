@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { PM2AppInfo } from '../../../../types/pm2.js';
 import Layout from '../../layout/Layout.js';
 import Page from '../Page.js';
-import { Box, ClockArrowUp, Cpu, MemoryStick } from 'lucide-react';
+import { Box, ClockArrowUp, Cpu, LayoutGrid, MemoryStick } from 'lucide-react';
 import { getStatusColorClass, getStatusText } from '../../../helpers/appstatus.js';
 import { formatUptime } from '../../../helpers/uptime.js';
 import { formatMemory } from '../../../helpers/memory.js';
@@ -46,50 +46,63 @@ const AppsPage = () => {
             }
             return response.json();
         },
+        retry(failureCount, error) {
+            console.warn(`Retrying fetch for apps, attempt #${failureCount}. Error:`, error);
+            return failureCount < 2;
+        },
     });
 
     return (
         <Page title="Apps - PM2 Dashboard">
             <Layout activeSection="apps">
-                <h1 className="mb-4 text-2xl font-semibold">Processes</h1>
-                {appsLoading && <LoadingDisplay />}
+                {appsLoading && <LoadingDisplay message="Loading processes..." />}
                 {appsError && <ErrorDisplay error="Failed to load apps. Please try again later." />}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {apps?.map((app) => (
-                        <div key={app.pm_id} className="card p-4 gap-2">
-                            <a
-                                href={`/app/${app.pm_id}`}
-                                className="text-xl font-bold flex items-center gap-2 group"
-                            >
-                                <Box />
-                                <span className="group-hover:underline underline-offset-4">
-                                    {app.name}
-                                </span>
-                                <span className={`badge ${getStatusColorClass(app.status)}`}>
-                                    {getStatusText(app.status)}
-                                </span>
-                            </a>
-                            <div className="border my-2" />
-                            <div className="grid grid-cols-2 gap-4">
-                                <AppStat
-                                    label="CPU:"
-                                    value={`${app.cpu}%`}
-                                    icon={<Cpu className="h-6 w-6" />}
-                                />
-                                <AppStat
-                                    label="Memory:"
-                                    value={formatMemory(app.memory)}
-                                    icon={<MemoryStick className="h-6 w-6" />}
-                                />
-                                <AppStat
-                                    label="Uptime:"
-                                    value={formatUptime(app.uptime)}
-                                    icon={<ClockArrowUp className="h-6 w-6" />}
-                                />
-                            </div>
+                {apps && (
+                    <>
+                        <h1 className="mb-4 text-xl font-semibold flex items-center gap-2">
+                            <LayoutGrid className="h-5 w-5" />
+                            Processes
+                        </h1>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            {apps.map((app) => (
+                                <div key={app.pm_id} className="card p-4 gap-2">
+                                    <a
+                                        href={`/apps/${app.name}`}
+                                        className="text-xl font-bold flex items-center gap-2 group"
+                                    >
+                                        <Box />
+                                        <span className="group-hover:underline underline-offset-4">
+                                            {app.name}
+                                        </span>
+                                        <span
+                                            className={`badge ${getStatusColorClass(app.status)}`}
+                                        >
+                                            {getStatusText(app.status)}
+                                        </span>
+                                    </a>
+                                    <div className="border my-2" />
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <AppStat
+                                            label="CPU:"
+                                            value={`${app.cpu}%`}
+                                            icon={<Cpu className="h-6 w-6" />}
+                                        />
+                                        <AppStat
+                                            label="Memory:"
+                                            value={formatMemory(app.memory)}
+                                            icon={<MemoryStick className="h-6 w-6" />}
+                                        />
+                                        <AppStat
+                                            label="Uptime:"
+                                            value={formatUptime(app.uptime)}
+                                            icon={<ClockArrowUp className="h-6 w-6" />}
+                                        />
+                                    </div>
+                                </div>
+                            ))}
                         </div>
-                    ))}
-                </div>
+                    </>
+                )}
             </Layout>
         </Page>
     );

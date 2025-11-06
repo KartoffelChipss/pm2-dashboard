@@ -51,7 +51,7 @@ export function listApps(): Promise<PM2AppInfo[]> {
  * @param appName The name of the application to describe.
  * @returns A promise that resolves to the application information or null if not found.
  */
-export function describeApp(appName: string): Promise<PM2AppInfo | null> {
+export function describeApp(appName: string | number): Promise<PM2AppInfo | null> {
     return new Promise((resolve, reject) => {
         pm2.connect((err) => {
             if (err) {
@@ -79,8 +79,11 @@ export function describeApp(appName: string): Promise<PM2AppInfo | null> {
                                 pm2_env_cwd: app.pm2_env?.pm_cwd,
                             };
                             resolve(appInfo);
+                            return;
                         }
                     }
+
+                    resolve(null);
                 } else {
                     resolve(null);
                 }
