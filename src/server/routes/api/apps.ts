@@ -1,11 +1,18 @@
 import express from 'express';
-import { deleteApp, describeApp, listApps, reloadApp, restartApp, stopApp } from './pm2Helpers.js';
-import logger from './util/logging/logger.js';
-import { readHistory } from './pm2-history.js';
+import logger from '../../util/logging/logger.js';
+import {
+    deleteApp,
+    describeApp,
+    listApps,
+    reloadApp,
+    restartApp,
+    stopApp,
+} from '../../pm2Helpers.js';
+import { readHistory } from '../../pm2-history.js';
 
 const router = express.Router();
 
-router.get('/apps', async (_, res) => {
+router.get('/', async (_, res) => {
     try {
         const apps = await listApps();
         res.json(apps);
@@ -15,7 +22,7 @@ router.get('/apps', async (_, res) => {
     }
 });
 
-router.get('/apps/:name', async (req, res) => {
+router.get('/:name', async (req, res) => {
     const appName = req.params.name;
     try {
         const appInfo = await describeApp(appName);
@@ -31,7 +38,7 @@ router.get('/apps/:name', async (req, res) => {
     }
 });
 
-router.post('/apps/:name/reload', async (req, res) => {
+router.post('/:name/reload', async (req, res) => {
     const appName = req.params.name;
     try {
         await reloadApp(appName);
@@ -42,7 +49,7 @@ router.post('/apps/:name/reload', async (req, res) => {
     }
 });
 
-router.post('/apps/:name/stop', async (req, res) => {
+router.post('/:name/stop', async (req, res) => {
     const appName = req.params.name;
     try {
         await stopApp(appName);
@@ -53,7 +60,7 @@ router.post('/apps/:name/stop', async (req, res) => {
     }
 });
 
-router.post('/apps/:name/restart', async (req, res) => {
+router.post('/:name/restart', async (req, res) => {
     const appName = req.params.name;
     try {
         await restartApp(appName);
@@ -64,7 +71,7 @@ router.post('/apps/:name/restart', async (req, res) => {
     }
 });
 
-router.delete('/apps/:name', async (req, res) => {
+router.delete('/:name', async (req, res) => {
     const appName = req.params.name;
     try {
         await deleteApp(appName);
@@ -73,13 +80,6 @@ router.delete('/apps/:name', async (req, res) => {
         logger.error('Error deleting app:', error);
         res.status(500).json({ error: 'Failed to delete app', details: error });
     }
-});
-
-router.use((_, res) => {
-    res.status(404).json({
-        error: 'Not Found',
-        message: 'The requested resource does not exist.',
-    });
 });
 
 export default router;
