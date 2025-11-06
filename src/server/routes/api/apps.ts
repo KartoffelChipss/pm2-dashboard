@@ -24,9 +24,12 @@ router.get('/', async (_, res) => {
 
 router.get('/:name', async (req, res) => {
     const appName = req.params.name;
+    const sinceTs = req.query.since ? Number(req.query.since) : Date.now() - 3600 * 1000;
+    const untilTs = req.query.until ? Number(req.query.until) : Date.now();
+
     try {
         const appInfo = await describeApp(appName);
-        const history = readHistory(appInfo?.pm_id ?? -1);
+        const history = readHistory(appInfo?.pm_id ?? -1, sinceTs, untilTs);
         if (!appInfo) {
             res.status(404).json({ error: 'App not found' });
             return;

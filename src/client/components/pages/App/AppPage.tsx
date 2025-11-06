@@ -18,6 +18,8 @@ import {
 import { formatUptime } from '../../../helpers/uptime';
 import { formatMemory } from '../../../helpers/memory';
 import { getStatusColorClass, getStatusText } from '../../../helpers/appstatus';
+import RamChart from './RamChart';
+import CpuChart from './CpuChart';
 
 const AppStat = ({
     label,
@@ -67,6 +69,8 @@ const AppPage = () => {
             return failureCount < 2;
         },
     });
+
+    console.log(app?.history.map((point) => point.memory));
 
     return (
         <Page title={app ? `${app.appInfo.name} - PM2 Dashboard` : 'Process'}>
@@ -132,10 +136,12 @@ const AppPage = () => {
                                         />
                                     </div>
                                 </div>
-                                {/* <div className="card p-4 py-3 gap-4">
-                                    <h2 className="text-lg font-semibold">Statistics</h2>
+                                <div className="card p-4 py-3 gap-4">
+                                    <h2 className="text-lg font-semibold">Ressource Usage</h2>
                                     <div className="border -mt-2" />
-                                </div> */}
+                                    <CpuChart history={app.history} />
+                                    <RamChart history={app.history} />
+                                </div>
                             </div>
                             <div className="card p-4 py-3 w-full gap-4">
                                 <h2 className="text-lg font-semibold">Logs</h2>

@@ -1,6 +1,7 @@
 import ReactDOM from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import './index.css';
+import 'chart.js/auto';
 import { BrowserRouter, Route, Routes } from 'react-router';
 import HomePage from './components/pages/Home/HomePage';
 import AppsPage from './components/pages/Apps/AppsPage';
