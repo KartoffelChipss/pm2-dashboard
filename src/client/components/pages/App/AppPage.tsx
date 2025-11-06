@@ -20,6 +20,7 @@ import { formatMemory } from '../../../helpers/memory';
 import { getStatusColorClass, getStatusText } from '../../../helpers/appstatus';
 import RamChart from './RamChart';
 import CpuChart from './CpuChart';
+import useAppStream from '../../../helpers/useAppStream';
 
 const AppStat = ({
     label,
@@ -43,6 +44,8 @@ const AppStat = ({
 
 const AppPage = () => {
     const { appName } = useParams<{ appName: string }>();
+
+    useAppStream(appName);
 
     const {
         data: app,
@@ -69,8 +72,6 @@ const AppPage = () => {
             return failureCount < 2;
         },
     });
-
-    console.log(app?.history.map((point) => point.memory));
 
     return (
         <Page title={app ? `${app.appInfo.name} - PM2 Dashboard` : 'Process'}>

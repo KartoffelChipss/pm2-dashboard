@@ -41,6 +41,46 @@ router.get('/:name', async (req, res) => {
     }
 });
 
+router.get('/:name/stream', async (req, res) => {
+    const appName = req.params.name;
+
+    res.set({
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        Connection: 'keep-alive',
+    });
+
+    const sendPayload = (payload: any) => {
+        try {
+            res.write(`data: ${JSON.stringify(payload)}\n\n`);
+        } catch (e) {
+            logger.error('Failed to write SSE payload:', e);
+        }
+    };
+
+    const sendOnce = async () => {
+        try {
+            const appInfo = await describeApp(appName);
+            if (!appInfo) {
+                sendPayload({ error: 'app_not_found' });
+                return;
+            }
+            const history = readHistory(appInfo.pm_id ?? -1, Date.now() - 60_000, Date.now());
+            sendPayload({ appInfo, history });
+        } catch (error) {
+            logger.error('Error building SSE payload for app stream:', error);
+            sendPayload({ error: 'internal_error', details: String(error) });
+        }
+    };
+
+    void sendOnce();
+    const id = setInterval(() => void sendOnce(), 3000);
+
+    req.on('close', () => {
+        clearInterval(id);
+    });
+});
+
 router.post('/:name/reload', async (req, res) => {
     const appName = req.params.name;
     try {
