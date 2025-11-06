@@ -65,7 +65,11 @@ router.get('/:name/stream', async (req, res) => {
                 sendPayload({ error: 'app_not_found' });
                 return;
             }
-            const history = readHistory(appInfo.pm_id ?? -1, Date.now() - 60_000, Date.now());
+            const history = readHistory(
+                appInfo.pm_id ?? -1,
+                Date.now() - 30 * 60 * 1000,
+                Date.now()
+            );
             sendPayload({ appInfo, history });
         } catch (error) {
             logger.error('Error building SSE payload for app stream:', error);
