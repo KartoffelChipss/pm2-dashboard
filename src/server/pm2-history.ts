@@ -7,10 +7,6 @@ import logger from './util/logging/logger.js';
 const DATA_DIR = path.resolve(CONFIG_PATH, 'pm2-metrics');
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 
-function safeFilename(name: string) {
-    return name.replace(/[<>:"/\\|?*\x00-\x1F]/g, '_');
-}
-
 export async function pollOnce(): Promise<void> {
     return new Promise((resolve, reject) => {
         pm2.connect((err) => {
@@ -30,10 +26,7 @@ export async function pollOnce(): Promise<void> {
                         memory: app.monit?.memory ?? null,
                         uptime: app.pm2_env?.pm_uptime ?? null,
                     };
-                    const file = path.join(
-                        DATA_DIR,
-                        `${safeFilename(app.name)}-${app.pm_id}.jsonl`
-                    );
+                    const file = path.join(DATA_DIR, `${app.pm_id}.jsonl`);
                     fs.appendFileSync(file, JSON.stringify(sample) + '\n');
                 }
                 resolve();
@@ -50,17 +43,11 @@ export function startPolling(intervalMs = 10_000) {
     return () => clearInterval(id);
 }
 
-export function readHistory(appName: string, pm_id?: number, fromTs?: number, toTs?: number) {
+export function readHistory(pm_id: number, fromTs?: number, toTs?: number) {
+    if (pm_id < 0) return [];
     const files: string[] = [];
-    if (typeof pm_id === 'number') {
-        const f = path.join(DATA_DIR, `${safeFilename(appName)}-${pm_id}.jsonl`);
-        if (fs.existsSync(f)) files.push(f);
-    } else {
-        const prefix = `${safeFilename(appName)}-`;
-        for (const f of fs.readdirSync(DATA_DIR)) {
-            if (f.startsWith(prefix) && f.endsWith('.jsonl')) files.push(path.join(DATA_DIR, f));
-        }
-    }
+    const f = path.join(DATA_DIR, `${pm_id}.jsonl`);
+    if (fs.existsSync(f)) files.push(f);
 
     const samples: Array<Record<string, any>> = [];
     for (const f of files) {

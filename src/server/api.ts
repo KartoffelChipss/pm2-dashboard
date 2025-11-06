@@ -1,5 +1,5 @@
 import express from 'express';
-import { describeApp, listApps, reloadApp, restartApp, stopApp } from './pm2Helpers.js';
+import { deleteApp, describeApp, listApps, reloadApp, restartApp, stopApp } from './pm2Helpers.js';
 import logger from './util/logging/logger.js';
 import { readHistory } from './pm2-history.js';
 
@@ -19,7 +19,7 @@ router.get('/apps/:name', async (req, res) => {
     const appName = req.params.name;
     try {
         const appInfo = await describeApp(appName);
-        const history = await readHistory(appName);
+        const history = readHistory(appInfo?.pm_id ?? -1);
         if (!appInfo) {
             res.status(404).json({ error: 'App not found' });
             return;
@@ -64,7 +64,18 @@ router.post('/apps/:name/restart', async (req, res) => {
     }
 });
 
-router.use((req, res) => {
+router.delete('/apps/:name', async (req, res) => {
+    const appName = req.params.name;
+    try {
+        await deleteApp(appName);
+        res.json({ message: `App ${appName} deleted successfully` });
+    } catch (error) {
+        logger.error('Error deleting app:', error);
+        res.status(500).json({ error: 'Failed to delete app', details: error });
+    }
+});
+
+router.use((_, res) => {
     res.status(404).json({
         error: 'Not Found',
         message: 'The requested resource does not exist.',
