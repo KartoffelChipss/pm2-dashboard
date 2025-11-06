@@ -16,7 +16,7 @@ const HomePage = () => {
     });
 
     return (
-        <Page title="Home">
+        <Page title="Home - PM2 Dashboard">
             <Layout activeSection="home">
                 <h1>Welcome to the Home Page</h1>
                 <ul>
