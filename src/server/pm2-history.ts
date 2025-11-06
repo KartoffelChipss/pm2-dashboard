@@ -6,6 +6,7 @@ import logger from './util/logging/logger.js';
 import { db } from './db/initDatabase.js';
 import { Op } from 'sequelize';
 import { PM2AppHistory } from '../types/pm2.js';
+import { sequelize } from './db/sequelize.js';
 
 const DATA_DIR = path.resolve(CONFIG_PATH, 'pm2-metrics');
 if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -14,25 +15,32 @@ export async function pollOnce(): Promise<void> {
     return new Promise((resolve, reject) => {
         pm2.connect((err) => {
             if (err) return reject(err);
-            pm2.list((err, apps) => {
+            pm2.list(async (err, apps) => {
                 pm2.disconnect();
                 if (err) return reject(err);
                 const ts = Date.now();
-                for (const app of apps) {
-                    if (app.pm_id === undefined || !app.name) continue;
-                    const sample = {
-                        ts,
-                        pm_id: app.pm_id,
-                        name: app.name,
-                        status: app.pm2_env?.status ?? null,
-                        cpu: app.monit?.cpu ?? null,
-                        memory: app.monit?.memory ?? null,
-                        uptime: app.pm2_env?.pm_uptime ?? null,
-                    };
+                const t = await sequelize.transaction();
+                try {
+                    for (const app of apps) {
+                        if (app.pm_id === undefined || !app.name) continue;
+                        const sample = {
+                            ts,
+                            pm_id: app.pm_id,
+                            name: app.name,
+                            status: app.pm2_env?.status ?? null,
+                            cpu: app.monit?.cpu ?? null,
+                            memory: app.monit?.memory ?? null,
+                            uptime: app.pm2_env?.pm_uptime ?? null,
+                        };
 
-                    db.History.create(sample);
+                        await db.History.create(sample, { transaction: t });
+                    }
+                    await t.commit();
+                    resolve();
+                } catch (error) {
+                    await t.rollback();
+                    reject(error);
                 }
-                resolve();
             });
         });
     });
