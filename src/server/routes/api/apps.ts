@@ -9,6 +9,9 @@ import {
     stopApp,
 } from '../../pm2Helpers.js';
 import { readHistory } from '../../pm2-history.js';
+import path from 'path';
+import readLastLines from 'read-last-lines';
+import AnsiToHtml from 'ansi-to-html';
 
 const router = express.Router();
 
@@ -126,6 +129,89 @@ router.delete('/:name', async (req, res) => {
     } catch (error) {
         logger.error('Error deleting app:', error);
         res.status(500).json({ error: 'Failed to delete app', details: error });
+    }
+});
+
+router.get('/:name/logs', async (req, res) => {
+    const appName = req.params.name;
+    const lines = req.query.lines ? Number(req.query.lines) : 100;
+
+    try {
+        const appInfo = await describeApp(appName);
+        if (!appInfo) {
+            res.status(404).json({ error: 'App not found' });
+            return;
+        }
+        const infoPath = path.resolve(appInfo.pm_out_log_path || '');
+        const errorPath = path.resolve(appInfo.pm_err_log_path || '');
+
+        if (!infoPath && !errorPath) {
+            res.status(400).json({ error: 'No log paths available for this app' });
+            return;
+        }
+
+        const ansiConverter = new AnsiToHtml({
+            colors: {
+                30: '#222233', // black → sidebar/background
+                31: '#e65c4f', // red → destructive
+                32: '#55d88b', // green → chart-2 / success
+                33: '#f0c24f', // yellow → chart-5
+                34: '#7cb8ff', // blue → primary
+                35: '#b48efc', // magenta → chart-4
+                36: '#6cd3e3', // cyan → accent
+                37: '#f5f5f7', // white → foreground
+
+                90: '#555566', // bright black (dim gray)
+                91: '#ff7366', // bright red
+                92: '#7ef5ac', // bright green
+                93: '#ffe16a', // bright yellow
+                94: '#9acbff', // bright blue
+                95: '#d4aaff', // bright magenta
+                96: '#8ee9f4', // bright cyan
+                97: '#ffffff', // bright white
+
+                40: '#1a1a24', // bg black
+                41: '#4f1f1f', // bg red
+                42: '#1f4f2f', // bg green
+                43: '#4f4a1f', // bg yellow
+                44: '#1f2f4f', // bg blue
+                45: '#3f1f4f', // bg magenta
+                46: '#1f4f4f', // bg cyan
+                47: '#dcdce0', // bg white
+            },
+        });
+
+        function filterEmptyLines(logs: string): string {
+            return logs
+                .split('\n')
+                .filter((line) => line.trim() !== '')
+                .join('\n');
+        }
+
+        function ansiToHtml(ansi: string): string {
+            return ansiConverter.toHtml(ansi);
+        }
+
+        const lastInfoLines = ansiToHtml(
+            filterEmptyLines(await readLastLines.read(infoPath, lines))
+        );
+        const lastErrorLines = ansiToHtml(
+            filterEmptyLines(await readLastLines.read(errorPath, lines))
+        );
+
+        const combinedSortedLogs = (lastInfoLines + '\n' + lastErrorLines)
+            .split('\n')
+            .sort() // Simple sort; for real timestamps, a more complex sort may be needed
+            .join('\n');
+
+        res.json({
+            infoLogs: lastInfoLines,
+            errorLogs: lastErrorLines,
+            combinedLogs: combinedSortedLogs,
+        });
+    } catch (error) {
+        logger.error('Error retrieving logs for app:', error);
+        res.status(500).json({ error: 'Failed to retrieve logs', details: error });
     }
 });
 

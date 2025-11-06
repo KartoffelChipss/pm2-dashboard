@@ -15,6 +15,7 @@
     "dependencies": {
         "@tailwindcss/vite": "^4.1.16",
         "@tanstack/react-query": "^5.90.7",
+        "ansi-to-html": "^0.7.2",
         "basecoat-css": "^0.3.3",
         "chart.js": "^4.5.1",
         "dotenv": "^17.2.3",
@@ -25,6 +26,7 @@
         "react-chartjs-2": "^5.3.1",
         "react-dom": "^19.1.0",
         "react-router": "^7.9.5",
+        "read-last-lines": "^1.8.0",
         "sequelize": "^6.37.7",
         "sqlite3": "^5.1.7",
         "tailwindcss": "^4.1.16",

@@ -28,6 +28,7 @@ import CpuChart from './CpuChart';
 import useAppStream from '../../../helpers/useAppStream';
 import { useState } from 'react';
 import Modal from '../../common/Modal';
+import LogsDisplay from './LogsDisplay';
 
 const AppStat = ({
     label,
@@ -188,7 +189,7 @@ const AppPage = () => {
                 {appLoading && !app && <LoadingDisplay message="Loading process details..." />}
                 {appError && <ErrorDisplay error={appError} />}
                 {app && (
-                    <div className="max-h-full h-full relative">
+                    <div className="max-h-full h-full relative overflow-hidden">
                         {message && (
                             <div
                                 className={`absolute card flex-row items-center gap-3 bottom-5 right-5 shadow-2xl px-4 py-3 z-10`}
@@ -219,8 +220,8 @@ const AppPage = () => {
 
                             <button></button>
                         </div>
-                        <div className="flex flex-col md:flex-row gap-4">
-                            <div className="grid gap-4 min-w-1/3">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="grid gap-4">
                                 <div className="card p-4 py-3 gap-4">
                                     <div className="flex flex-col md:flex-row md:items-center gap-1 mb-1 md:mb-0 justify-between">
                                         <h2 className="text-lg font-semibold">Overview</h2>
@@ -302,10 +303,7 @@ const AppPage = () => {
                                     <RamChart history={app.history} />
                                 </div>
                             </div>
-                            <div className="card p-4 py-3 w-full gap-4">
-                                <h2 className="text-lg font-semibold">Logs</h2>
-                                <div className="border -mt-2" />
-                            </div>
+                            <LogsDisplay appName={app.appInfo.name} />
                         </div>
                         <Modal isOpen={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
                             <div>
