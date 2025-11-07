@@ -66,8 +66,6 @@ router.get('/:name/logs/stream', async (req, res) => {
         logger.warn('Failed to send initial SSE comment:', e);
     }
 
-    console.log(`Client connected to SSE logs stream for app: ${appName}`);
-
     const sendPayload = (payload: any) => {
         try {
             res.write(`data: ${JSON.stringify(payload)}\n\n`);
@@ -151,7 +149,7 @@ router.get('/:name/logs/stream', async (req, res) => {
     });
 
     watcher.on('all', (event, p) => {
-        logger.debug(`Chokidar event: ${event} -> ${p}`);
+        logger.silly(`Chokidar event: ${event} -> ${p}`);
     });
 
     sendOnce().catch((e) => logger.error('Initial sendOnce failed:', e));
