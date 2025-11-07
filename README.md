@@ -5,12 +5,38 @@
   <p align="center" >A simple web dashboard for monitoring and managing pm2</p>
 </p>
 
+PM2 Dashboard is a lightweight, web-based interface for monitoring and managing processes running on your server using [PM2](https://pm2.keymetrics.io).
+
+Deployment is simple as simple as it gets: Clone the repository, build the app, and start it. No external database or separate frontend/backend setup required.
+
+The dashboard displays essential metrics and live logs, providing a clean and efficient overview of your server’s processes.
+
 ## Features
 
 - Overview about all running processes
 - Monitor memory and CPU usage
 - Restart, stop or delete processes
 - Realtime logs
+
+## Screenshots
+
+<table>
+  <tr>
+    <td>
+      <img src="./.github/readme-assets/home.webp" />
+    </td>
+    <td>
+      <img src="./.github/readme-assets/process.webp" />
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <img src="./.github/readme-assets/login.webp" />
+    </td>
+    <td>
+    </td>
+  </tr>
+</table>
 
 ## Installation
 
