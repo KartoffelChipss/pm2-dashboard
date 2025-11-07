@@ -21,5 +21,10 @@ export const isProduction: boolean = NODE_ENV === 'production';
 export const PORT: number = envNumber('PORT', 56000);
 /** The path to the config files, db, user profile pictures, etc. */
 export const CONFIG_PATH: string = process.env.CONFIG_PATH as string;
-export const JWT_SECRET: string = process.env.JWT_SECRET as string;
+export const USERNAME = process.env.USERNAME || 'admin';
+export const PASSWORD = process.env.PASSWORD || 'password';
+
+// Token configuration for JWT-based auth
+export const TOKEN_SECRET = process.env.TOKEN_SECRET || 'dev-secret';
+export const TOKEN_EXPIRATION_SECONDS = envNumber('TOKEN_EXPIRATION_SECONDS', 3600);
 export const SECURE_COOKIES: boolean = process.env.SECURE_COOKIES === 'true';

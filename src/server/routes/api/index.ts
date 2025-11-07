@@ -1,9 +1,11 @@
 import express from 'express';
 import appsRouter from './apps.js';
 import logsRouter from './logs.js';
+import authRouter from './auth.js';
 
 const router = express.Router();
 
+router.use('/auth', authRouter);
 router.use('/apps', logsRouter);
 router.use('/apps', appsRouter);
 

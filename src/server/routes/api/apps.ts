@@ -9,8 +9,11 @@ import {
     stopApp,
 } from '../../pm2Helpers.js';
 import { readHistory } from '../../pm2-history.js';
+import authenticate from '../../db/middleware/authenticate.js';
 
 const router = express.Router();
+
+router.use(authenticate);
 
 router.get('/', async (_, res) => {
     try {

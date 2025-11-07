@@ -5,8 +5,11 @@ import ansiToHtml from '../../util/ansiToHtml.js';
 import path from 'path';
 import { describeApp } from '../../pm2Helpers.js';
 import chokidar from 'chokidar';
+import authenticate from '../../db/middleware/authenticate.js';
 
 const router = express.Router();
+
+router.use(authenticate);
 
 router.get('/:name/logs', async (req, res) => {
     const appName = req.params.name;

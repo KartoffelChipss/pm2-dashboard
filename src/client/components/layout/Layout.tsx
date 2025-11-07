@@ -1,5 +1,7 @@
+import { useMutation } from '@tanstack/react-query';
 import { Boxes, LogOut, Settings } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router';
 
 const Layout = ({
     children,
@@ -8,6 +10,7 @@ const Layout = ({
     children: React.ReactNode;
     activeSection?: string;
 }) => {
+    const navigate = useNavigate();
     const [scrolled, setScrolled] = useState(false);
 
     useEffect(() => {
@@ -24,11 +27,25 @@ const Layout = ({
         };
     }, []);
 
+    const logoutMutation = useMutation({
+        mutationFn: async () => {
+            const response = await fetch('/api/auth/logout', {
+                method: 'POST',
+            });
+            if (!response.ok) {
+                throw new Error('Logout failed');
+            }
+        },
+        onSuccess: () => {
+            navigate('/login');
+        },
+    });
+
     return (
         <div className="w-full flex justify-center">
             <div className="h-full flex flex-col w-full max-w-[1440px]">
                 <header
-                    className={`p-4 flex items-center justify-between w-full sticky top-0 backdrop-blur z-10 transition-border ${
+                    className={`p-4 flex items-center justify-between w-full sticky top-0 backdrop-blur z-10 transition-border h-16 ${
                         scrolled ? 'border-b' : ''
                     }`}
                 >
@@ -46,13 +63,13 @@ const Layout = ({
                         >
                             <Settings />
                         </a>
-                        <a
-                            href="/logout"
+                        <button
+                            onClick={() => logoutMutation.mutate()}
                             className={`${activeSection === 'logout' ? 'btn-icon' : 'btn-icon-ghost'}`}
                             aria-label="Logout"
                         >
                             <LogOut />
-                        </a>
+                        </button>
                     </nav>
                 </header>
                 <main className="p-4">{children}</main>

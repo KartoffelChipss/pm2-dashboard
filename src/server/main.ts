@@ -5,12 +5,17 @@ import { startPolling } from './pm2-history.js';
 import { PORT } from './util/env.js';
 import logger from './util/logging/logger.js';
 import { initDatabase } from './db/initDatabase.js';
+import cookieParser from 'cookie-parser';
 
 (async () => {
     await initDatabase();
     logger.info('Database ready.');
 
     const app = express();
+
+    app.use(cookieParser());
+    app.use(express.json());
+    app.use(express.urlencoded({ extended: true }));
 
     startPolling(5000); // poll every 5s
 

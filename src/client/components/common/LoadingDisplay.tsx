@@ -6,7 +6,7 @@ export interface LoadingDisplayProps {
 }
 
 export const LoadingDisplay: React.FC<LoadingDisplayProps> = ({
-    className = 'py-9 h-full -mt-16',
+    className = 'py-9 h-full',
     message,
 }) => (
     <div className={'flex flex-col justify-center items-center gap-3 text-lg ' + className}>
