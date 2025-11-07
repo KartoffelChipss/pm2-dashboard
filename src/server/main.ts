@@ -6,6 +6,7 @@ import { PORT } from './util/env.js';
 import logger from './util/logging/logger.js';
 import { initDatabase } from './db/initDatabase.js';
 import cookieParser from 'cookie-parser';
+import { HistoryCleaner } from './services/HistoryCleaner.js';
 
 (async () => {
     await initDatabase();
@@ -18,6 +19,8 @@ import cookieParser from 'cookie-parser';
     app.use(express.urlencoded({ extended: true }));
 
     startPolling(5000); // poll every 5s
+
+    HistoryCleaner.startScheduledCleanup();
 
     app.use('/api', apiRouter);
 

@@ -25,6 +25,7 @@
         "express": "^5.1.0",
         "jsonwebtoken": "^9.0.2",
         "lucide-react": "^0.552.0",
+        "node-cron": "^4.2.1",
         "pm2": "^6.0.13",
         "react": "^19.1.0",
         "react-chartjs-2": "^5.3.1",
