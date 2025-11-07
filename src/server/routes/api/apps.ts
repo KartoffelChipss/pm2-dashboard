@@ -9,9 +9,6 @@ import {
     stopApp,
 } from '../../pm2Helpers.js';
 import { readHistory } from '../../pm2-history.js';
-import path from 'path';
-import readLastLines from 'read-last-lines';
-import ansiToHtml from '../../util/ansiToHtml.js';
 
 const router = express.Router();
 
@@ -52,6 +49,13 @@ router.get('/:name/stream', async (req, res) => {
         'Cache-Control': 'no-cache',
         Connection: 'keep-alive',
     });
+
+    try {
+        res.write(': connected\n\n');
+        if (typeof (res as any).flushHeaders === 'function') (res as any).flushHeaders();
+    } catch (e) {
+        logger.silly('Failed to send initial SSE comment:', e);
+    }
 
     const sendPayload = (payload: any) => {
         try {
@@ -129,54 +133,6 @@ router.delete('/:name', async (req, res) => {
     } catch (error) {
         logger.error('Error deleting app:', error);
         res.status(500).json({ error: 'Failed to delete app', details: error });
-    }
-});
-
-router.get('/:name/logs', async (req, res) => {
-    const appName = req.params.name;
-    const lines = req.query.lines ? Number(req.query.lines) : 100;
-
-    try {
-        const appInfo = await describeApp(appName);
-        if (!appInfo) {
-            res.status(404).json({ error: 'App not found' });
-            return;
-        }
-        const infoPath = path.resolve(appInfo.pm_out_log_path || '');
-        const errorPath = path.resolve(appInfo.pm_err_log_path || '');
-
-        if (!infoPath && !errorPath) {
-            res.status(400).json({ error: 'No log paths available for this app' });
-            return;
-        }
-
-        function filterEmptyLines(logs: string): string {
-            return logs
-                .split('\n')
-                .filter((line) => line.trim() !== '')
-                .join('\n');
-        }
-
-        const lastInfoLines = ansiToHtml(
-            filterEmptyLines(await readLastLines.read(infoPath, lines))
-        );
-        const lastErrorLines = ansiToHtml(
-            filterEmptyLines(await readLastLines.read(errorPath, lines))
-        );
-
-        const combinedSortedLogs = (lastInfoLines + '\n' + lastErrorLines)
-            .split('\n')
-            .sort() // Simple sort; for real timestamps, a more complex sort may be needed
-            .join('\n');
-
-        res.json({
-            infoLogs: lastInfoLines,
-            errorLogs: lastErrorLines,
-            combinedLogs: combinedSortedLogs,
-        });
-    } catch (error) {
-        logger.error('Error retrieving logs for app:', error);
-        res.status(500).json({ error: 'Failed to retrieve logs', details: error });
     }
 });
 

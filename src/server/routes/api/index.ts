@@ -1,8 +1,10 @@
 import express from 'express';
 import appsRouter from './apps.js';
+import logsRouter from './logs.js';
 
 const router = express.Router();
 
+router.use('/apps', logsRouter);
 router.use('/apps', appsRouter);
 
 router.use((_, res) => {

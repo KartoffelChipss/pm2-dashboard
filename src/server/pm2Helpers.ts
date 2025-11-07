@@ -1,5 +1,32 @@
-import pm2 from 'pm2';
 import { isPM2AppStatus, PM2AppInfo, PM2AppStatus } from '../types/pm2.js';
+import pm2 from 'pm2';
+
+let pm2Connected = false;
+let pm2Connecting: Promise<void> | null = null;
+
+function ensurePm2Connected(): Promise<void> {
+    if (pm2Connected) return Promise.resolve();
+    if (pm2Connecting) return pm2Connecting;
+
+    pm2Connecting = new Promise((resolve, reject) => {
+        pm2.connect((err) => {
+            pm2Connecting = null;
+            if (err) return reject(err);
+            pm2Connected = true;
+            resolve();
+        });
+    });
+
+    return pm2Connecting;
+}
+
+process.on('exit', () => {
+    try {
+        if (pm2Connected) pm2.disconnect();
+    } catch {
+        // ignore
+    }
+});
 
 function parseStatus(status: string | undefined): PM2AppStatus | undefined {
     if (status && isPM2AppStatus(status)) return status;
@@ -12,37 +39,37 @@ function parseStatus(status: string | undefined): PM2AppStatus | undefined {
  */
 export function listApps(): Promise<PM2AppInfo[]> {
     return new Promise((resolve, reject) => {
-        pm2.connect((err) => {
-            if (err) {
-                reject(err);
-            }
-            pm2.list((err, apps) => {
-                pm2.disconnect();
-                if (err) {
-                    reject(err);
-                }
-                const newApps: PM2AppInfo[] = apps
-                    .filter((app) => app.pm2_env?.pm_exec_path !== undefined)
-                    .map((app) => {
-                        if (!app.name || app.pm_id === undefined) {
-                            throw new Error('Invalid PM2 app data');
-                        }
+        ensurePm2Connected()
+            .then(() => {
+                pm2.list((err, apps) => {
+                    if (err) return reject(err);
+                    try {
+                        const newApps: PM2AppInfo[] = apps
+                            .filter((app) => app.pm2_env?.pm_exec_path !== undefined)
+                            .map((app) => {
+                                if (!app.name || app.pm_id === undefined) {
+                                    throw new Error('Invalid PM2 app data');
+                                }
 
-                        return {
-                            name: app.name,
-                            pm_id: app.pm_id,
-                            status: parseStatus(app.pm2_env?.status),
-                            cpu: app.monit?.cpu,
-                            memory: app.monit?.memory,
-                            uptime: app.pm2_env?.pm_uptime,
-                            pm_out_log_path: app.pm2_env?.pm_out_log_path,
-                            pm_err_log_path: app.pm2_env?.pm_err_log_path,
-                            pm2_env_cwd: app.pm2_env?.pm_cwd,
-                        };
-                    });
-                resolve(newApps);
-            });
-        });
+                                return {
+                                    name: app.name,
+                                    pm_id: app.pm_id,
+                                    status: parseStatus(app.pm2_env?.status),
+                                    cpu: app.monit?.cpu,
+                                    memory: app.monit?.memory,
+                                    uptime: app.pm2_env?.pm_uptime,
+                                    pm_out_log_path: app.pm2_env?.pm_out_log_path,
+                                    pm_err_log_path: app.pm2_env?.pm_err_log_path,
+                                    pm2_env_cwd: app.pm2_env?.pm_cwd,
+                                };
+                            });
+                        resolve(newApps);
+                    } catch (e) {
+                        reject(e);
+                    }
+                });
+            })
+            .catch(reject);
     });
 }
 
@@ -53,42 +80,38 @@ export function listApps(): Promise<PM2AppInfo[]> {
  */
 export function describeApp(appName: string | number): Promise<PM2AppInfo | null> {
     return new Promise((resolve, reject) => {
-        pm2.connect((err) => {
-            if (err) {
-                reject(err);
-            }
-            pm2.describe(appName, (err, apps) => {
-                pm2.disconnect();
-                if (err) {
-                    reject(err);
-                }
-                if (Array.isArray(apps) && apps.length > 0) {
-                    for (const app of apps) {
-                        if (!app.name || app.pm_id === undefined) continue;
+        ensurePm2Connected()
+            .then(() => {
+                pm2.describe(appName, (err, apps) => {
+                    if (err) return reject(err);
+                    if (Array.isArray(apps) && apps.length > 0) {
+                        for (const app of apps) {
+                            if (!app.name || app.pm_id === undefined) continue;
 
-                        if (app.name === appName) {
-                            const appInfo: PM2AppInfo = {
-                                name: app.name,
-                                pm_id: app.pm_id,
-                                status: parseStatus(app.pm2_env?.status),
-                                cpu: app.monit?.cpu,
-                                memory: app.monit?.memory,
-                                uptime: app.pm2_env?.pm_uptime,
-                                pm_out_log_path: app.pm2_env?.pm_out_log_path,
-                                pm_err_log_path: app.pm2_env?.pm_err_log_path,
-                                pm2_env_cwd: app.pm2_env?.pm_cwd,
-                            };
-                            resolve(appInfo);
-                            return;
+                            if (app.name === appName) {
+                                const appInfo: PM2AppInfo = {
+                                    name: app.name,
+                                    pm_id: app.pm_id,
+                                    status: parseStatus(app.pm2_env?.status),
+                                    cpu: app.monit?.cpu,
+                                    memory: app.monit?.memory,
+                                    uptime: app.pm2_env?.pm_uptime,
+                                    pm_out_log_path: app.pm2_env?.pm_out_log_path,
+                                    pm_err_log_path: app.pm2_env?.pm_err_log_path,
+                                    pm2_env_cwd: app.pm2_env?.pm_cwd,
+                                };
+                                resolve(appInfo);
+                                return;
+                            }
                         }
-                    }
 
-                    resolve(null);
-                } else {
-                    resolve(null);
-                }
-            });
-        });
+                        resolve(null);
+                    } else {
+                        resolve(null);
+                    }
+                });
+            })
+            .catch(reject);
     });
 }
 
@@ -99,18 +122,14 @@ export function describeApp(appName: string | number): Promise<PM2AppInfo | null
  */
 export function reloadApp(process: string | number): Promise<void> {
     return new Promise((resolve, reject) => {
-        pm2.connect((err) => {
-            if (err) {
-                reject(err);
-            }
-            pm2.reload(process, (err) => {
-                pm2.disconnect();
-                if (err) {
-                    reject(err);
-                }
-                resolve();
-            });
-        });
+        ensurePm2Connected()
+            .then(() => {
+                pm2.reload(process, (err) => {
+                    if (err) return reject(err);
+                    resolve();
+                });
+            })
+            .catch(reject);
     });
 }
 
@@ -121,18 +140,14 @@ export function reloadApp(process: string | number): Promise<void> {
  */
 export function stopApp(process: string | number): Promise<void> {
     return new Promise((resolve, reject) => {
-        pm2.connect((err) => {
-            if (err) {
-                reject(err);
-            }
-            pm2.stop(process, (err) => {
-                pm2.disconnect();
-                if (err) {
-                    reject(err);
-                }
-                resolve();
-            });
-        });
+        ensurePm2Connected()
+            .then(() => {
+                pm2.stop(process, (err) => {
+                    if (err) return reject(err);
+                    resolve();
+                });
+            })
+            .catch(reject);
     });
 }
 
@@ -143,18 +158,14 @@ export function stopApp(process: string | number): Promise<void> {
  */
 export function restartApp(process: string | number): Promise<void> {
     return new Promise((resolve, reject) => {
-        pm2.connect((err) => {
-            if (err) {
-                reject(err);
-            }
-            pm2.restart(process, (err) => {
-                pm2.disconnect();
-                if (err) {
-                    reject(err);
-                }
-                resolve();
-            });
-        });
+        ensurePm2Connected()
+            .then(() => {
+                pm2.restart(process, (err) => {
+                    if (err) return reject(err);
+                    resolve();
+                });
+            })
+            .catch(reject);
     });
 }
 
@@ -170,18 +181,14 @@ export function startApp(process: {
     cwd?: string;
 }): Promise<void> {
     return new Promise((resolve, reject) => {
-        pm2.connect((err) => {
-            if (err) {
-                reject(err);
-            }
-            pm2.start(process, (err) => {
-                pm2.disconnect();
-                if (err) {
-                    reject(err);
-                }
-                resolve();
-            });
-        });
+        ensurePm2Connected()
+            .then(() => {
+                pm2.start(process, (err) => {
+                    if (err) return reject(err);
+                    resolve();
+                });
+            })
+            .catch(reject);
     });
 }
 
@@ -191,17 +198,13 @@ export function startApp(process: {
  */
 export function deleteApp(process: string | number): Promise<void> {
     return new Promise((resolve, reject) => {
-        pm2.connect((err) => {
-            if (err) {
-                reject(err);
-            }
-            pm2.delete(process, (err) => {
-                pm2.disconnect();
-                if (err) {
-                    reject(err);
-                }
-                resolve();
-            });
-        });
+        ensurePm2Connected()
+            .then(() => {
+                pm2.delete(process, (err) => {
+                    if (err) return reject(err);
+                    resolve();
+                });
+            })
+            .catch(reject);
     });
 }

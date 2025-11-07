@@ -85,8 +85,6 @@ const AppPage = () => {
         },
     });
 
-    console.log('Hiostory', app?.history);
-
     const restartMutation = useMutation({
         mutationFn: async () => {
             const response = await fetch(`/api/apps/${appName}/restart`, {
@@ -189,7 +187,7 @@ const AppPage = () => {
                 {appLoading && !app && <LoadingDisplay message="Loading process details..." />}
                 {appError && <ErrorDisplay error={appError} />}
                 {app && (
-                    <div className="max-h-full h-full relative overflow-hidden">
+                    <div className="relative overflow-hidden">
                         {message && (
                             <div
                                 className={`absolute card flex-row items-center gap-3 bottom-5 right-5 shadow-2xl px-4 py-3 z-10`}
