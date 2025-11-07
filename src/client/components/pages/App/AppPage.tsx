@@ -203,7 +203,7 @@ const AppPage = () => {
                         <div className="flex justify-between">
                             <h1 className="mb-4 text-xl font-semibold flex items-center gap-2">
                                 <a
-                                    href="/apps"
+                                    href="/"
                                     className="text-muted-foreground flex items-center gap-2"
                                 >
                                     <LayoutGrid className="h-5 w-5" />

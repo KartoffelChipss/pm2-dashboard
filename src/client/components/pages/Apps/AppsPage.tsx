@@ -67,7 +67,7 @@ const AppsPage = () => {
                             {apps.map((app) => (
                                 <div key={app.pm_id} className="card p-4 gap-2">
                                     <a
-                                        href={`/apps/${app.name}`}
+                                        href={`/process/${app.name}`}
                                         className="text-xl font-bold flex items-center gap-2 group"
                                     >
                                         <Box />

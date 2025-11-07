@@ -1,4 +1,5 @@
-import { Boxes, ChartColumn, House, LayoutGrid, Settings } from 'lucide-react';
+import { Boxes, LogOut, Settings } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 const Layout = ({
     children,
@@ -7,49 +8,54 @@ const Layout = ({
     children: React.ReactNode;
     activeSection?: string;
 }) => {
+    const [scrolled, setScrolled] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            setScrolled(window.scrollY > 0);
+        };
+
+        window.addEventListener('scroll', handleScroll);
+
+        handleScroll();
+
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+        };
+    }, []);
+
     return (
-        <div className="h-full flex flex-col bg-card max-w-full">
-            <header className="p-4 flex items-center min-h-16 h-16 border-b">
-                <h1 className="text-2xl font-bold flex items-center gap-2">
-                    <Boxes className="text-primary" />
-                    PM2 Dashboard
-                </h1>
-            </header>
-            <div className="flex w-full h-full max-w-full">
-                <aside className="flex h-full flex-col p-4 border-r">
-                    <nav className="flex flex-col items-start gap-4">
-                        <a
-                            href="/"
-                            className={`${activeSection === 'home' ? 'btn-icon' : 'btn-icon-secondary'}`}
-                        >
-                            <House />
-                        </a>
-                        <a
-                            href="/apps"
-                            className={`${activeSection === 'apps' ? 'btn-icon' : 'btn-icon-secondary'}`}
-                            aria-label="Apps"
-                        >
-                            <LayoutGrid />
-                        </a>
-                        <a
-                            href="/monitoring"
-                            className={`${activeSection === 'monitoring' ? 'btn-icon' : 'btn-icon-secondary'}`}
-                            aria-label="Monitoring"
-                        >
-                            <ChartColumn />
-                        </a>
+        <div className="w-full flex justify-center">
+            <div className="h-full flex flex-col w-full max-w-[1440px]">
+                <header
+                    className={`p-4 flex items-center justify-between w-full sticky top-0 backdrop-blur z-10 transition-border ${
+                        scrolled ? 'border-b' : ''
+                    }`}
+                >
+                    <a href="/" className="text-inherit no-underline">
+                        <h1 className="text-2xl font-bold flex items-center gap-2">
+                            <Boxes className="text-primary" />
+                            PM2 Dashboard
+                        </h1>
+                    </a>
+                    <nav className="flex items-start gap-4">
                         <a
                             href="/settings"
-                            className={`${activeSection === 'settings' ? 'btn-icon' : 'btn-icon-secondary'}`}
+                            className={`${activeSection === 'settings' ? 'btn-icon' : 'btn-icon-ghost'}`}
                             aria-label="Settings"
                         >
                             <Settings />
                         </a>
+                        <a
+                            href="/logout"
+                            className={`${activeSection === 'logout' ? 'btn-icon' : 'btn-icon-ghost'}`}
+                            aria-label="Logout"
+                        >
+                            <LogOut />
+                        </a>
                     </nav>
-                </aside>
-                <main className="grow p-4 bg-background overflow-y-scroll max-h-[calc(100vh-4rem)]">
-                    {children}
-                </main>
+                </header>
+                <main className="p-4">{children}</main>
             </div>
         </div>
     );
