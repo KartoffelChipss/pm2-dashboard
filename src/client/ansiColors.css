@@ -1,0 +1,51 @@
+/* Normal colors */
+.ansi-black {
+    color: #222233;
+}
+.ansi-red {
+    color: #e65c4f;
+}
+.ansi-green {
+    color: #55d88b;
+}
+.ansi-yellow {
+    color: #f0c24f;
+}
+.ansi-blue {
+    color: #7cb8ff;
+}
+.ansi-magenta {
+    color: #b48efc;
+}
+.ansi-cyan {
+    color: #6cd3e3;
+}
+.ansi-white {
+    color: #f5f5f7;
+}
+
+/* Bright colors */
+.ansi-bright-black {
+    color: #555566;
+}
+.ansi-bright-red {
+    color: #ff7366;
+}
+.ansi-bright-green {
+    color: #7ef5ac;
+}
+.ansi-bright-yellow {
+    color: #ffe16a;
+}
+.ansi-bright-blue {
+    color: #9acbff;
+}
+.ansi-bright-magenta {
+    color: #d4aaff;
+}
+.ansi-bright-cyan {
+    color: #8ee9f4;
+}
+.ansi-bright-white {
+    color: #ffffff;
+}

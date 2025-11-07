@@ -11,7 +11,7 @@ import {
 import { readHistory } from '../../pm2-history.js';
 import path from 'path';
 import readLastLines from 'read-last-lines';
-import AnsiToHtml from 'ansi-to-html';
+import ansiToHtml from '../../util/ansiToHtml.js';
 
 const router = express.Router();
 
@@ -150,46 +150,11 @@ router.get('/:name/logs', async (req, res) => {
             return;
         }
 
-        const ansiConverter = new AnsiToHtml({
-            colors: {
-                30: '#222233', // black → sidebar/background
-                31: '#e65c4f', // red → destructive
-                32: '#55d88b', // green → chart-2 / success
-                33: '#f0c24f', // yellow → chart-5
-                34: '#7cb8ff', // blue → primary
-                35: '#b48efc', // magenta → chart-4
-                36: '#6cd3e3', // cyan → accent
-                37: '#f5f5f7', // white → foreground
-
-                90: '#555566', // bright black (dim gray)
-                91: '#ff7366', // bright red
-                92: '#7ef5ac', // bright green
-                93: '#ffe16a', // bright yellow
-                94: '#9acbff', // bright blue
-                95: '#d4aaff', // bright magenta
-                96: '#8ee9f4', // bright cyan
-                97: '#ffffff', // bright white
-
-                40: '#1a1a24', // bg black
-                41: '#4f1f1f', // bg red
-                42: '#1f4f2f', // bg green
-                43: '#4f4a1f', // bg yellow
-                44: '#1f2f4f', // bg blue
-                45: '#3f1f4f', // bg magenta
-                46: '#1f4f4f', // bg cyan
-                47: '#dcdce0', // bg white
-            },
-        });
-
         function filterEmptyLines(logs: string): string {
             return logs
                 .split('\n')
                 .filter((line) => line.trim() !== '')
                 .join('\n');
-        }
-
-        function ansiToHtml(ansi: string): string {
-            return ansiConverter.toHtml(ansi);
         }
 
         const lastInfoLines = ansiToHtml(

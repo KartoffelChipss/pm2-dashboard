@@ -1,5 +1,14 @@
+import DOMPurify from 'dompurify';
 import { useQuery } from '@tanstack/react-query';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import '../../../ansiColors.css';
+
+function sanitizeAllowOnlySpanClass(html: string) {
+    return DOMPurify.sanitize(html, {
+        ALLOWED_TAGS: ['span'],
+        ALLOWED_ATTR: ['class'],
+    });
+}
 
 const LogsDisplay = ({ appName }: { appName: string }) => {
     const [logsKind, setLogsKind] = useState<'info' | 'error'>('info');
@@ -20,6 +29,16 @@ const LogsDisplay = ({ appName }: { appName: string }) => {
         },
         staleTime: 5 * 60 * 1000, // 5 minutes
     });
+
+    const cleanInfoHtml = useMemo(
+        () => sanitizeAllowOnlySpanClass(logs?.infoLogs ?? ''),
+        [logs?.infoLogs]
+    );
+
+    const cleanErrorHtml = useMemo(
+        () => sanitizeAllowOnlySpanClass(logs?.errorLogs ?? ''),
+        [logs?.errorLogs]
+    );
 
     useEffect(() => {
         const el = containerRef.current;
@@ -51,9 +70,9 @@ const LogsDisplay = ({ appName }: { appName: string }) => {
             <div className="border -mt-2" />
             <div ref={containerRef} className="max-h-130 overflow-auto max-w-full">
                 {logsKind === 'info' ? (
-                    <pre dangerouslySetInnerHTML={{ __html: logs?.infoLogs ?? '' }}></pre>
+                    <pre dangerouslySetInnerHTML={{ __html: cleanInfoHtml }}></pre>
                 ) : (
-                    <pre dangerouslySetInnerHTML={{ __html: logs?.errorLogs ?? '' }}></pre>
+                    <pre dangerouslySetInnerHTML={{ __html: cleanErrorHtml }}></pre>
                 )}
             </div>
         </div>
