@@ -54,7 +54,7 @@ const AppsPage = () => {
 
     return (
         <Page title="Apps - PM2 Dashboard">
-            <Layout activeSection="apps">
+            <Layout>
                 {appsLoading && <LoadingDisplay message="Loading processes..." />}
                 {appsError && <ErrorDisplay error="Failed to load apps. Please try again later." />}
                 {apps && (

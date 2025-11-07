@@ -1,15 +1,9 @@
 import { useMutation } from '@tanstack/react-query';
-import { Boxes, LogOut, Settings } from 'lucide-react';
+import { Boxes, LogOut } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router';
 
-const Layout = ({
-    children,
-    activeSection,
-}: {
-    children: React.ReactNode;
-    activeSection?: string;
-}) => {
+const Layout = ({ children }: { children: React.ReactNode }) => {
     const navigate = useNavigate();
     const [scrolled, setScrolled] = useState(false);
 
@@ -56,16 +50,9 @@ const Layout = ({
                         </h1>
                     </a>
                     <nav className="flex items-start gap-4">
-                        <a
-                            href="/settings"
-                            className={`${activeSection === 'settings' ? 'btn-icon' : 'btn-icon-ghost'}`}
-                            aria-label="Settings"
-                        >
-                            <Settings />
-                        </a>
                         <button
                             onClick={() => logoutMutation.mutate()}
-                            className={`${activeSection === 'logout' ? 'btn-icon' : 'btn-icon-ghost'}`}
+                            className={`btn-icon-ghost`}
                             aria-label="Logout"
                         >
                             <LogOut />
