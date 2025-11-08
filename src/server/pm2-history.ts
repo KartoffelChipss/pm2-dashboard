@@ -1,15 +1,9 @@
 import pm2 from 'pm2';
-import fs from 'fs';
-import path from 'path';
-import { CONFIG_PATH } from './util/env.js';
 import logger from './util/logging/logger.js';
 import { db } from './db/initDatabase.js';
 import { Op } from 'sequelize';
 import { PM2AppHistory } from '../types/pm2.js';
 import { sequelize } from './db/sequelize.js';
-
-const DATA_DIR = path.resolve(CONFIG_PATH, 'pm2-metrics');
-if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 
 export async function pollOnce(): Promise<void> {
     return new Promise((resolve, reject) => {
