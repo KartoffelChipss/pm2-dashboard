@@ -2,7 +2,7 @@ import DOMPurify from 'dompurify';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import '../../../ansiColors.css';
-import useLogsStream from '../../../helpers/useLogsStream';
+import useLogsStream from '../../../hooks/useLogsStream';
 import { LoadingDisplay } from '../../common/LoadingDisplay';
 
 function sanitizeAllowOnlySpanClass(html: string) {

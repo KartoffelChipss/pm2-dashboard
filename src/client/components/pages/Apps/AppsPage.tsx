@@ -9,6 +9,7 @@ import { formatMemory } from '../../../helpers/memory.js';
 import { LoadingDisplay } from '../../common/LoadingDisplay.js';
 import { ErrorDisplay } from '../../common/ErrorDisplay.js';
 import { parseErrorResponse } from '../../../helpers/errorResponseParser.js';
+import { formatCpu } from '../../../helpers/cpu.js';
 
 const AppStat = ({
     label,
@@ -84,7 +85,7 @@ const AppsPage = () => {
                                     <div className="grid sm:grid-cols-2 gap-4">
                                         <AppStat
                                             label="CPU:"
-                                            value={`${app.cpu}%`}
+                                            value={formatCpu(app.cpu)}
                                             icon={<Cpu className="h-6 w-6" />}
                                         />
                                         <AppStat
@@ -94,7 +95,11 @@ const AppsPage = () => {
                                         />
                                         <AppStat
                                             label="Uptime:"
-                                            value={formatUptime(app.uptime)}
+                                            value={
+                                                app.status === 'online'
+                                                    ? formatUptime(app.uptime)
+                                                    : 'N/A'
+                                            }
                                             icon={<ClockArrowUp className="h-6 w-6" />}
                                         />
                                     </div>

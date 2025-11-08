@@ -25,10 +25,11 @@ import { formatMemory } from '../../../helpers/memory';
 import { getStatusColorClass, getStatusText } from '../../../helpers/appstatus';
 import RamChart from './RamChart';
 import CpuChart from './CpuChart';
-import useAppStream from '../../../helpers/useAppStream';
+import useAppStream from '../../../hooks/useAppStream';
 import { useState } from 'react';
 import Modal from '../../common/Modal';
 import LogsDisplay from './LogsDisplay';
+import { formatCpu } from '../../../helpers/cpu';
 
 const AppStat = ({
     label,
@@ -279,7 +280,7 @@ const AppPage = () => {
                                         />
                                         <AppStat
                                             label="CPU:"
-                                            value={`${app.appInfo.cpu?.toFixed(2)}%`}
+                                            value={formatCpu(app.appInfo.cpu)}
                                             icon={<Cpu className="h-6 w-6" />}
                                         />
                                         <AppStat
@@ -289,7 +290,11 @@ const AppPage = () => {
                                         />
                                         <AppStat
                                             label="Uptime:"
-                                            value={formatUptime(app.appInfo.uptime)}
+                                            value={
+                                                app.appInfo.status === 'online'
+                                                    ? formatUptime(app.appInfo.uptime)
+                                                    : 'N/A'
+                                            }
                                             icon={<ClockArrowUp className="h-6 w-6" />}
                                         />
                                     </div>
