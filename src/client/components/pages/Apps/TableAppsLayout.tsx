@@ -70,8 +70,8 @@ const TableAppsLayout = ({ apps }: TableAppsLayoutProps) => {
                 bValue = b.memory;
                 break;
             case 'uptime':
-                aValue = a.status === 'online' ? a.uptime : 0;
-                bValue = b.status === 'online' ? b.uptime : 0;
+                aValue = a.status === 'online' ? a.uptime : Infinity;
+                bValue = b.status === 'online' ? b.uptime : Infinity;
                 break;
         }
 

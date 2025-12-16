@@ -73,9 +73,15 @@ const LogsDisplay = ({ appName }: { appName: string }) => {
             {!isLoading && !logsError && logs && (
                 <div ref={containerRef} className="max-h-130 overflow-auto max-w-full">
                     {logsKind === 'info' ? (
-                        <pre dangerouslySetInnerHTML={{ __html: cleanInfoHtml }}></pre>
+                        <pre
+                            dangerouslySetInnerHTML={{ __html: cleanInfoHtml }}
+                            className="font-mono"
+                        ></pre>
                     ) : (
-                        <pre dangerouslySetInnerHTML={{ __html: cleanErrorHtml }}></pre>
+                        <pre
+                            dangerouslySetInnerHTML={{ __html: cleanErrorHtml }}
+                            className="font-mono"
+                        ></pre>
                     )}
                 </div>
             )}
